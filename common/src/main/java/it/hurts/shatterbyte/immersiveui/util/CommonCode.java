@@ -153,9 +153,11 @@ public class CommonCode {
         float eased = (float) TransitionType.QUAD.apply(EaseType.EASE_OUT, progress);
         float x = Mth.lerp(eased, animation.startX, animation.endX);
         float y = Mth.lerp(eased, animation.startY, animation.endY);
+        float scale = Mth.lerp(eased, 1f, ImmersiveUI.CONFIG.getFloatingItemScale());
 
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(x + 8, y + 8);
+        guiGraphics.pose().scale(scale, scale);
         guiGraphics.item(animation.stack, -8, -8);
         guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, -8, -8);
         guiGraphics.pose().popMatrix();
