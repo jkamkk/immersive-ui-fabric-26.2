@@ -87,6 +87,33 @@ public class CommonCode {
         return screen.getMenu().getCarried().copy();
     }
 
+    public static ReturnAnimation createPickupAnimation(AbstractContainerScreen<?> screen, int mouseX, int mouseY,
+                                                        Map<Slot, ItemStack> previousSlotItems, ItemStack previousCarried) {
+        ItemStack currentCarried = screen.getMenu().getCarried();
+        if (!previousCarried.isEmpty() || currentCarried.isEmpty()) {
+            return null;
+        }
+
+        AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) screen;
+        for (Slot slot : screen.getMenu().slots) {
+            ItemStack previous = previousSlotItems.getOrDefault(slot, ItemStack.EMPTY);
+            if (!previous.isEmpty() && slot.getItem().isEmpty()
+                    && ItemStack.isSameItemSameComponents(previous, currentCarried)) {
+                float endX = mouseX - 8;
+                float endY = mouseY - 8;
+                return new ReturnAnimation(
+                        previous.copy(),
+                        accessor.getLeftPos() + slot.x,
+                        accessor.getTopPos() + slot.y,
+                        endX,
+                        endY
+                );
+            }
+        }
+
+        return null;
+    }
+
     public static boolean renderReturnAnimation(AbstractContainerScreen<?> screen, GuiGraphicsExtractor guiGraphics,
                                                 Slot slot, Map<Slot, ReturnAnimation> returnAnimations) {
         ReturnAnimation animation = returnAnimations.get(slot);
@@ -112,6 +139,24 @@ public class CommonCode {
             guiGraphics.item(animation.stack, slot.x, slot.y);
         }
         guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, slot.x, slot.y);
+        guiGraphics.pose().popMatrix();
+        return true;
+    }
+
+    public static boolean renderPickupAnimation(GuiGraphicsExtractor guiGraphics, ReturnAnimation animation) {
+        float progress = animation.progress();
+        if (progress >= 1f) {
+            return false;
+        }
+
+        float eased = (float) TransitionType.QUAD.apply(EaseType.EASE_OUT, progress);
+        float x = Mth.lerp(eased, animation.startX, animation.endX);
+        float y = Mth.lerp(eased, animation.startY, animation.endY);
+
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().translate(x, y);
+        guiGraphics.item(animation.stack, 0, 0);
+        guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, 0, 0);
         guiGraphics.pose().popMatrix();
         return true;
     }

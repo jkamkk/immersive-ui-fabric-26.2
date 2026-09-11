@@ -33,6 +33,8 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
     Map<Slot, ItemStack> previousSlotItems = new IdentityHashMap<>();
     @Unique
     ItemStack previousCarried = ItemStack.EMPTY;
+    @Unique
+    CommonCode.ReturnAnimation pickupAnimation;
 
     @Shadow
     @Nullable
@@ -100,6 +102,9 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         if (previousCarried == null) {
             previousCarried = ItemStack.EMPTY;
         }
+        if (pickupAnimation == null) {
+            pickupAnimation = CommonCode.createPickupAnimation(screen, mouseX, mouseY, previousSlotItems, previousCarried);
+        }
         previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried);
 
         if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
@@ -107,6 +112,17 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         }
 
         CommonCode.shakeScreen(guiGraphics, (Screen) (Object) this, timerCommon, 1f);
+    }
+
+    @Inject(method = "extractCarriedItem", at = @At("HEAD"), cancellable = true)
+    private void extractCarriedItem(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+        if (pickupAnimation != null) {
+            if (CommonCode.renderPickupAnimation(guiGraphics, pickupAnimation)) {
+                ci.cancel();
+            } else {
+                pickupAnimation = null;
+            }
+        }
     }
 
 //    @Inject(method = "render", at = @At("TAIL"))
