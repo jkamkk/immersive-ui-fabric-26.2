@@ -3,7 +3,7 @@ package it.hurts.shatterbyte.immersiveui.mixin;
 import it.hurts.shatterbyte.immersiveui.ImmersiveUI;
 import it.hurts.shatterbyte.shatterlib.ShatterLibClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-@Mixin(value = Gui.class, priority = -1)
+@Mixin(value = Hud.class, priority = -1)
 public abstract class InGameHudMixin {
 
     @Shadow
@@ -39,7 +39,7 @@ public abstract class InGameHudMixin {
 //        //guiGraphics.pose().popMatrix();
 //    }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V", ordinal = 1), index = 2, method = "renderItemHotbar")
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V", ordinal = 1), index = 2, method = "extractItemHotbar")
     private int selectedSlotPositionX(int originalX) {
         if (!ImmersiveUI.CONFIG.isEnableHotbarSelectorAnimation()) return originalX;
 

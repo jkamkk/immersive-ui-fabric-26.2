@@ -11,6 +11,9 @@
   "license": "${mod_license}",
   "environment": "client",
   "entrypoints": {
+    "modmenu": [
+      "it.hurts.shatterbyte.immersiveui.fabric.ImmersiveUIModMenu"
+    ],
     "main": [
       "${mod_group}.fabric.ImmersiveUIFabric"
     ],
@@ -23,9 +26,12 @@
     "${mod_id}.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=1.21.11",
-    "java": ">=21",
-    "shatterlib": ">=0.6.0.5",
+    "minecraft": "${minecraft_version_range}",
+    "java": ">=${java_version}",
+    "shatterlib": ">=${shatterlib_version}",
     "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }

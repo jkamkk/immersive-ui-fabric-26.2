@@ -4,7 +4,7 @@ import it.hurts.shatterbyte.immersiveui.ImmersiveUI;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.AdvancementToast;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
@@ -18,8 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class AdvancementToastMixin {
     @Shadow @Final private AdvancementHolder advancement;
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;renderFakeItem(Lnet/minecraft/world/item/ItemStack;II)V", shift = At.Shift.BEFORE))
-    public void renderItem(GuiGraphics guiGraphics, Font font, long visibilityTime, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;item(Lnet/minecraft/world/item/ItemStack;II)V", shift = At.Shift.BEFORE))
+    public void renderItem(GuiGraphicsExtractor guiGraphics, Font font, long visibilityTime, CallbackInfo ci) {
         if (!ImmersiveUI.CONFIG.isEnableAdvancementToastItems()) return;
 
         Minecraft mc = Minecraft.getInstance();
@@ -34,8 +34,8 @@ public class AdvancementToastMixin {
         guiGraphics.pose().translate(-16,-16);
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;renderFakeItem(Lnet/minecraft/world/item/ItemStack;II)V", shift = At.Shift.AFTER))
-    public void renderItemEnd(GuiGraphics guiGraphics, Font font, long visibilityTime, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;item(Lnet/minecraft/world/item/ItemStack;II)V", shift = At.Shift.AFTER))
+    public void renderItemEnd(GuiGraphicsExtractor guiGraphics, Font font, long visibilityTime, CallbackInfo ci) {
         if (!ImmersiveUI.CONFIG.isEnableAdvancementToastItems()) return;
         guiGraphics.pose().popMatrix();
     }

@@ -5,7 +5,7 @@ import it.hurts.shatterbyte.immersiveui.client.MouseInfo;
 import it.hurts.shatterbyte.immersiveui.client.RenderInfo;
 import it.hurts.shatterbyte.immersiveui.compat.ExtraScreenData;
 import it.hurts.shatterbyte.immersiveui.util.CommonCode;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
@@ -76,8 +76,8 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         return expandingProgress;
     }
 
-    @Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V", shift = At.Shift.BEFORE))
-    public void renderBg(GuiGraphics guiGraphics, int i, int j, float f, CallbackInfo ci) {
+    @Inject(method = "extractContents", at = @At("HEAD"))
+    public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
             return;
         }
@@ -93,8 +93,8 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
 //        guiGraphics.pose().popPose();
 //    }
 
-    @Inject(method = "renderFloatingItem", at = @At("HEAD"), cancellable = true)
-    public void renderFunkyItem(GuiGraphics guiGraphics, ItemStack itemStack, int i, int j, String string, CallbackInfo ci) {
+    @Inject(method = "extractFloatingItem", at = @At("HEAD"), cancellable = true)
+    private void extractFloatingItem(GuiGraphicsExtractor guiGraphics, ItemStack itemStack, int i, int j, String string, CallbackInfo ci) {
 //        if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
 //            return;
 //        }
@@ -102,8 +102,8 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         CommonCode.renderFloating((Screen) (Object) this, guiGraphics, getMouseInfo(), i, j, itemStack, getRandom(), getRenderInfo(), string, ci);
     }
 
-    @Inject(method = "renderSlotHighlightFront", at = @At(value = "HEAD"), cancellable = true)
-    private void disableSlotHighlight(GuiGraphics guiGraphics, CallbackInfo ci) {
+    @Inject(method = "extractSlotHighlightFront", at = @At(value = "HEAD"), cancellable = true)
+    private void disableSlotHighlight(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
         if (ImmersiveUI.CONFIG.isDisableVanillaSlotHighlighting()) {
             ci.cancel();
         }

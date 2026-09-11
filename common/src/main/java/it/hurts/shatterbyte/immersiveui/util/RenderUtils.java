@@ -1,10 +1,10 @@
 package it.hurts.shatterbyte.immersiveui.util;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 
@@ -53,7 +53,7 @@ public class RenderUtils {
     }
 
     public static MutableComponent obfuscate(MutableComponent input, double percentage, long seed) {
-        return stylize(input, percentage, Style.EMPTY.withObfuscated(true).withColor(ChatFormatting.DARK_RED), seed);
+        return stylize(input, percentage, Style.EMPTY.withObfuscated(true).withColor(TextColor.fromRgb(0xAA0000)), seed);
     }
 
     public static MutableComponent stylize(MutableComponent input, double percentage, Style style, long seed) {

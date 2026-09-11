@@ -14,7 +14,7 @@ import it.hurts.shatterbyte.shatterlib.client.particle.UIParticle;
 import it.hurts.shatterbyte.shatterlib.util.AnimationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
@@ -65,7 +65,7 @@ public class CommonCode {
         }
     }
 
-    public static void renderFloating(Screen screen, GuiGraphics guiGraphics, MouseInfo mouseInfo, int i, int j, ItemStack itemStack, Random random, RenderInfo renderInfo, String string, CallbackInfo ci) {
+    public static void renderFloating(Screen screen, GuiGraphicsExtractor guiGraphics, MouseInfo mouseInfo, int i, int j, ItemStack itemStack, Random random, RenderInfo renderInfo, String string, CallbackInfo ci) {
         float scale = ImmersiveUI.CONFIG.getFloatingItemScale();
         float deltaTime = (float) ShatterLibClient.getDeltaTime()*20;
         float amplitude = ImmersiveUI.CONFIG.getFloatingItemRotationAmplitude();
@@ -97,12 +97,21 @@ public class CommonCode {
         Matrix3x2f matrix = new Matrix3x2f(guiGraphics.pose());
         guiGraphics.pose().scale(scale, scale);
         if (ImmersiveUI.CONFIG.isEnableFloatingItemRotation()) guiGraphics.pose().rotate(Mth.abs(renderInfo.currentAngle) > 0.01f ? renderInfo.currentAngle : 0f);
-        guiGraphics.renderItem(itemStack, -8, -8);
+        guiGraphics.item(itemStack, -8, -8);
 
         if (ImmersiveUI.CONFIG.isEnableRarityParticles()) {
-            List<Integer> colors = itemStack.getHoverName().getSiblings().stream().map(c -> c.getStyle().getColor() == null ? 0 : c.getStyle().getColor().getValue()).toList();
+            List<Integer> colors = itemStack.getHoverName().getSiblings().stream()
+                    .map(component -> component.getStyle().getColor())
+                    .filter(Objects::nonNull)
+                    .map(colorValue -> colorValue.getValue())
+                    .toList();
             int color = colors.isEmpty() ? 0xffffff : colors.get(random.nextInt(colors.size()));
-            color = colors.isEmpty() ? itemStack.getDisplayName().getStyle().getColor() != null ? itemStack.getDisplayName().getStyle().getColor().getValue() : 0xffffff : color;
+            if (colors.isEmpty() && itemStack.getHoverName().getStyle().getColor() != null) {
+                color = itemStack.getHoverName().getStyle().getColor().getValue();
+            }
+            if (colors.isEmpty() && itemStack.getDisplayName().getStyle().getColor() != null) {
+                color = itemStack.getDisplayName().getStyle().getColor().getValue();
+            }
 
             if (color != 0xffffff) {
                 if (Mth.abs(mouseInfo.deltaX) > 0f || Mth.abs(mouseInfo.deltaY) > 0) {
@@ -127,14 +136,14 @@ public class CommonCode {
         }
 
         Font font = Minecraft.getInstance().font;
-        guiGraphics.renderItemDecorations(font, itemStack, -8, -8, string);
+        guiGraphics.itemDecorations(font, itemStack, -8, -8, string);
         //guiGraphics.drawString(font, expandingProgress.values().toString(), 0, 0, 0xFFFFFF, true);
         guiGraphics.pose().popMatrix();
 
         ci.cancel();
     }
 
-    public static void shakeScreen(GuiGraphics guiGraphics, Screen screen, AtomicReference<Float> timer, float durationMultiplier) {
+    public static void shakeScreen(GuiGraphicsExtractor guiGraphics, Screen screen, AtomicReference<Float> timer, float durationMultiplier) {
         boolean shouldShake = shakeScreen.contains(screen);
         if (shouldShake) {
             shakeScreen.remove(screen);
@@ -150,7 +159,7 @@ public class CommonCode {
         }
     }
 
-    public static void floatingRenderSize(GuiGraphics guiGraphics, Slot slot, Slot hoveredSlot, Map<Slot, Float> expandingProgress) {
+    public static void floatingRenderSize(GuiGraphicsExtractor guiGraphics, Slot slot, Slot hoveredSlot, Map<Slot, Float> expandingProgress) {
         LocalPlayer player = Minecraft.getInstance().player;
 
         if (player == null || slot == null)
@@ -175,6 +184,14 @@ public class CommonCode {
     }
 
     public static void computeMouseDelta(MouseInfo mouseInfo, int mouseX, int mouseY) {
+        if (mouseInfo.oX == Integer.MIN_VALUE || mouseInfo.oY == Integer.MIN_VALUE) {
+            mouseInfo.deltaX = 0f;
+            mouseInfo.deltaY = 0f;
+            mouseInfo.oX = mouseX;
+            mouseInfo.oY = mouseY;
+            return;
+        }
+
         double deltaTime = ShatterLibClient.getDeltaTime() * 100f;
         mouseInfo.deltaX = (float) ((mouseInfo.oX - mouseX) / deltaTime);
         mouseInfo.deltaY = (float) ((mouseInfo.oY - mouseY) / deltaTime);

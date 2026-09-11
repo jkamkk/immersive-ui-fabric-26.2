@@ -1,15 +1,17 @@
 pluginManagement {
     repositories {
-        maven { url "https://maven.fabricmc.net/" }
-        maven { url "https://maven.architectury.dev/" }
-        maven { url "https://maven.neoforged.net/releases/" }
-        maven { url "https://files.minecraftforge.net/maven/" }
+        maven { name = 'Fabric'; url = 'https://maven.fabricmc.net' }
+        mavenCentral()
         gradlePluginPortal()
     }
 }
 
 rootProject.name = 'immersiveui'
 
-include 'common'
-include 'fabric'
-include 'neoforge'
+if (providers.gradleProperty('useLocalShatterLib').isPresent() && file('../octo-lib').isDirectory()) {
+    includeBuild('../octo-lib') {
+        dependencySubstitution {
+            substitute module('it.hurts.shatterbyte.shatterlib:shatterlib-fabric') using project(':fabric')
+        }
+    }
+}
