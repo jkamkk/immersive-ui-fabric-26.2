@@ -18,6 +18,13 @@ public class AbstractContainerScreenMixin {
     @Nullable
     protected Slot hoveredSlot;
 
+    @Inject(method = "extractSlot", at = @At("HEAD"), cancellable = true)
+    public void renderReturnAnimation(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
+        if (CommonCode.renderReturnAnimation((AbstractContainerScreen<?>) (Object) this, guiGraphics, slot, ((ExtraScreenData) this).getReturnAnimations())) {
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "extractSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;item(Lnet/minecraft/world/item/ItemStack;III)V", shift = At.Shift.BEFORE))
     public void renderSize(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
         guiGraphics.pose().pushMatrix();

@@ -12,4 +12,5 @@ public interface ExtraScreenData {
     RenderInfo getRenderInfo();
     Random getRandom();
     Map<Slot, Float> getExpandingProgress();
+    Map<Slot, it.hurts.shatterbyte.immersiveui.util.CommonCode.ReturnAnimation> getReturnAnimations();
 }

@@ -27,6 +27,12 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
     Random random = new Random();
     @Unique
     Map<Slot, Float> expandingProgress = new HashMap<>();
+    @Unique
+    Map<Slot, CommonCode.ReturnAnimation> returnAnimations = new IdentityHashMap<>();
+    @Unique
+    Map<Slot, ItemStack> previousSlotItems = new IdentityHashMap<>();
+    @Unique
+    ItemStack previousCarried = ItemStack.EMPTY;
 
     @Shadow
     @Nullable
@@ -76,8 +82,20 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         return expandingProgress;
     }
 
+    @Override
+    public Map<Slot, CommonCode.ReturnAnimation> getReturnAnimations() {
+        if (returnAnimations == null) {
+            returnAnimations = new IdentityHashMap<>();
+        }
+
+        return returnAnimations;
+    }
+
     @Inject(method = "extractContents", at = @At("HEAD"))
     public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+        AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) (Object) this;
+        previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried);
+
         if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
             return;
         }

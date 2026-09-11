@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
@@ -34,6 +35,84 @@ import java.util.concurrent.atomic.AtomicReference;
 import static it.hurts.shatterbyte.immersiveui.client.VariableStorage.*;
 
 public class CommonCode {
+    private static final long RETURN_ANIMATION_DURATION_NS = 140_000_000L;
+
+    public static final class ReturnAnimation {
+        private final ItemStack stack;
+        private final float startX;
+        private final float startY;
+        private final float endX;
+        private final float endY;
+        private final long startTime;
+
+        public ReturnAnimation(ItemStack stack, float startX, float startY, float endX, float endY) {
+            this.stack = stack;
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+            this.startTime = System.nanoTime();
+        }
+
+        private float progress() {
+            return Mth.clamp((float) (System.nanoTime() - startTime) / RETURN_ANIMATION_DURATION_NS, 0f, 1f);
+        }
+    }
+
+    public static ItemStack updateReturnAnimations(AbstractContainerScreen<?> screen, int mouseX, int mouseY,
+                                                    Map<Slot, ItemStack> previousSlotItems,
+                                                    Map<Slot, ReturnAnimation> returnAnimations,
+                                                    ItemStack previousCarried) {
+        for (Slot slot : screen.getMenu().slots) {
+            ItemStack current = slot.getItem();
+            ItemStack previous = previousSlotItems.getOrDefault(slot, ItemStack.EMPTY);
+
+            if (!previousCarried.isEmpty()
+                    && !current.isEmpty()
+                    && ItemStack.isSameItemSameComponents(current, previousCarried)
+                    && (previous.isEmpty() || !ItemStack.isSameItemSameComponents(previous, current))) {
+                returnAnimations.put(slot, new ReturnAnimation(current.copy(), mouseX - 8, mouseY - 8, slot.x, slot.y));
+            }
+
+            if (current.isEmpty()) {
+                previousSlotItems.remove(slot);
+            } else {
+                previousSlotItems.put(slot, current.copy());
+            }
+        }
+
+        return screen.getMenu().getCarried().copy();
+    }
+
+    public static boolean renderReturnAnimation(AbstractContainerScreen<?> screen, GuiGraphicsExtractor guiGraphics,
+                                                Slot slot, Map<Slot, ReturnAnimation> returnAnimations) {
+        ReturnAnimation animation = returnAnimations.get(slot);
+        if (animation == null) {
+            return false;
+        }
+
+        float progress = animation.progress();
+        if (progress >= 1f) {
+            returnAnimations.remove(slot);
+            return false;
+        }
+
+        float eased = (float) TransitionType.QUAD.apply(EaseType.EASE_OUT, progress);
+        float x = Mth.lerp(eased, animation.startX, animation.endX);
+        float y = Mth.lerp(eased, animation.startY, animation.endY);
+
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().translate(x - slot.x, y - slot.y);
+        if (slot.isFake()) {
+            guiGraphics.fakeItem(animation.stack, slot.x, slot.y);
+        } else {
+            guiGraphics.item(animation.stack, slot.x, slot.y);
+        }
+        guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, slot.x, slot.y);
+        guiGraphics.pose().popMatrix();
+        return true;
+    }
+
     public static void gooeyRenderCode(float partialTick) {
         currentTime = System.currentTimeMillis();
         elapsedTime = currentTime - VariableStorage.lastExecutedTime;
