@@ -172,7 +172,7 @@ public class CommonCode {
             return;
         }
 
-        guiGraphics.blit(CARRIED_ITEM_SHADOW, -16, 6, 32, 12, 0f, 0f, 32f, 12f);
+        guiGraphics.blit(CARRIED_ITEM_SHADOW, -16, 6, 32, 12, 0f, 0f, 1f, 1f);
     }
 
     public static void gooeyRenderCode(float partialTick) {
