@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class AdvancementToastMixin {
     @Shadow @Final private AdvancementHolder advancement;
 
-    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;item(Lnet/minecraft/world/item/ItemStack;II)V", shift = At.Shift.BEFORE))
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;fakeItem(Lnet/minecraft/world/item/ItemStack;II)V", shift = At.Shift.BEFORE))
     public void renderItem(GuiGraphicsExtractor guiGraphics, Font font, long visibilityTime, CallbackInfo ci) {
         if (!ImmersiveUI.CONFIG.isEnableAdvancementToastItems()) return;
 
@@ -34,7 +34,7 @@ public class AdvancementToastMixin {
         guiGraphics.pose().translate(-16,-16);
     }
 
-    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;item(Lnet/minecraft/world/item/ItemStack;II)V", shift = At.Shift.AFTER))
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;fakeItem(Lnet/minecraft/world/item/ItemStack;II)V", shift = At.Shift.AFTER))
     public void renderItemEnd(GuiGraphicsExtractor guiGraphics, Font font, long visibilityTime, CallbackInfo ci) {
         if (!ImmersiveUI.CONFIG.isEnableAdvancementToastItems()) return;
         guiGraphics.pose().popMatrix();
