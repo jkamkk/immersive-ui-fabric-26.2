@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static it.hurts.shatterbyte.immersiveui.client.VariableStorage.*;
 
 public class CommonCode {
+    private static final Identifier CARRIED_ITEM_SHADOW = Identifier.fromNamespaceAndPath("immersiveui", "textures/gui/item_shadow.png");
     public static final class ReturnAnimation {
         private final ItemStack stack;
         private final float startX;
@@ -170,8 +172,7 @@ public class CommonCode {
             return;
         }
 
-        guiGraphics.fill(-7, 8, 7, 9, 0x26000000);
-        guiGraphics.fill(-5, 9, 5, 10, 0x18000000);
+        guiGraphics.blit(CARRIED_ITEM_SHADOW, -16, 6, 32, 12, 0f, 0f, 32f, 12f);
     }
 
     public static void gooeyRenderCode(float partialTick) {
