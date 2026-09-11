@@ -94,6 +94,12 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
     @Inject(method = "extractContents", at = @At("HEAD"))
     public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) (Object) this;
+        if (previousSlotItems == null) {
+            previousSlotItems = new IdentityHashMap<>();
+        }
+        if (previousCarried == null) {
+            previousCarried = ItemStack.EMPTY;
+        }
         previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried);
 
         if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
