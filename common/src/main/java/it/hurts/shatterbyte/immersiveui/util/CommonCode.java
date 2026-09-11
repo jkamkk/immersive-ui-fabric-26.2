@@ -7,6 +7,7 @@ import it.hurts.shatterbyte.immersiveui.client.VariableStorage;
 import it.hurts.shatterbyte.immersiveui.client.particle.FlameUIParticle;
 import it.hurts.shatterbyte.immersiveui.client.particle.RarityUIParticle;
 import it.hurts.shatterbyte.immersiveui.mixin.AbstractContainerScreenAccessor;
+import it.hurts.shatterbyte.immersiveui.mixin.SpriteContentsAccessor;
 import it.hurts.shatterbyte.shatterlib.ShatterLibClient;
 import it.hurts.shatterbyte.shatterlib.client.animation.easing.EaseType;
 import it.hurts.shatterbyte.shatterlib.client.animation.easing.TransitionType;
@@ -18,6 +19,14 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +44,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static it.hurts.shatterbyte.immersiveui.client.VariableStorage.*;
 
 public class CommonCode {
+    private static final Map<Integer, Identifier> SHADOW_TEXTURES = new java.util.HashMap<>();
     public static final class ReturnAnimation {
         private final ItemStack stack;
         private final float startX;
@@ -158,21 +168,63 @@ public class CommonCode {
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(x + 8, y + 8);
         guiGraphics.pose().scale(scale, scale);
-        renderCarriedItemShadow(guiGraphics);
+        renderCarriedItemShadow(guiGraphics, animation.stack);
         guiGraphics.item(animation.stack, -8, -8);
         guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, -8, -8);
         guiGraphics.pose().popMatrix();
         return true;
     }
 
-    private static void renderCarriedItemShadow(GuiGraphicsExtractor guiGraphics) {
+    private static void renderCarriedItemShadow(GuiGraphicsExtractor guiGraphics, ItemStack stack) {
         if (!ImmersiveUI.CONFIG.isEnableCarriedItemShadow()) {
             return;
         }
 
-        guiGraphics.fillGradient(-6, 7, 6, 9, 0x00000000, 0x2A000000);
-        guiGraphics.fillGradient(-10, 9, 10, 11, 0x2A000000, 0x14000000);
-        guiGraphics.fillGradient(-8, 11, 8, 13, 0x14000000, 0x00000000);
+        Identifier texture = getShadowTexture(stack);
+        if (texture != null) {
+            guiGraphics.blit(texture, -16, 4, 32, 16, 0f, 0f, 1f, 1f);
+        }
+    }
+
+    private static Identifier getShadowTexture(ItemStack stack) {
+        int key = ItemStack.hashItemAndComponents(stack);
+        Identifier cached = SHADOW_TEXTURES.get(key);
+        if (cached != null) return cached;
+
+        ItemStackRenderState state = new ItemStackRenderState();
+        Minecraft minecraft = Minecraft.getInstance();
+        minecraft.getItemModelResolver().updateForTopItem(state, stack,
+                net.minecraft.world.item.ItemDisplayContext.GUI, minecraft.level, null, 0);
+        Material.Baked material = state.pickParticleMaterial(RandomSource.create(key));
+        if (material == null || material.sprite() == null) return null;
+
+        TextureAtlas atlas = (TextureAtlas) minecraft.getTextureManager().getTexture(TextureAtlas.LOCATION_ITEMS);
+        TextureAtlasSprite sprite = material.sprite();
+        NativeImage source = ((SpriteContentsAccessor) (Object) sprite.contents()).immersiveui$getOriginalImage();
+        if (source == null) return null;
+
+        NativeImage shadow = new NativeImage(32, 16, true);
+        for (int y = 0; y < 16; y++) {
+            for (int x = 0; x < 32; x++) {
+                float sx = (x - 8.0f) * source.getWidth() / 16.0f;
+                float sy = (y - 1.0f) * source.getHeight() / 16.0f;
+                int alpha = 0;
+                for (int oy = -1; oy <= 1; oy++) {
+                    for (int ox = -1; ox <= 1; ox++) {
+                        int px = Mth.clamp((int) sx + ox, 0, source.getWidth() - 1);
+                        int py = Mth.clamp((int) sy + oy, 0, source.getHeight() - 1);
+                        alpha = Math.max(alpha, (source.getPixel(px, py) >>> 24) * (3 - Math.abs(ox) - Math.abs(oy)) / 3);
+                    }
+                }
+                int fade = Mth.clamp(16 - y, 0, 16);
+                shadow.setPixel(x, y, (alpha * fade / 16 / 3) << 24);
+            }
+        }
+
+        Identifier id = Identifier.fromNamespaceAndPath("immersiveui", "generated_shadow/" + Integer.toUnsignedString(key));
+        minecraft.getTextureManager().register(id, new DynamicTexture(() -> "ImmersiveUI item shadow", shadow));
+        SHADOW_TEXTURES.put(key, id);
+        return id;
     }
 
     public static void gooeyRenderCode(float partialTick) {
@@ -238,7 +290,7 @@ public class CommonCode {
         Matrix3x2f matrix = new Matrix3x2f(guiGraphics.pose());
         guiGraphics.pose().scale(scale, scale);
         if (ImmersiveUI.CONFIG.isEnableFloatingItemRotation()) guiGraphics.pose().rotate(Mth.abs(renderInfo.currentAngle) > 0.01f ? renderInfo.currentAngle : 0f);
-        renderCarriedItemShadow(guiGraphics);
+        renderCarriedItemShadow(guiGraphics, itemStack);
         guiGraphics.item(itemStack, -8, -8);
 
         if (ImmersiveUI.CONFIG.isEnableRarityParticles()) {
