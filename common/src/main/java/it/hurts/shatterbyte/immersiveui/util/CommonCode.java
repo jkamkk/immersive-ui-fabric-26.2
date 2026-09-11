@@ -16,7 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
@@ -160,15 +159,13 @@ public class CommonCode {
         }
     }
 
-    public static void floatingRenderSize(AbstractContainerScreen<?> screen, GuiGraphicsExtractor guiGraphics, Slot slot, Slot hoveredSlot, Map<Slot, Float> expandingProgress) {
+    public static void floatingRenderSize(GuiGraphicsExtractor guiGraphics, Slot slot, Slot hoveredSlot, Map<Slot, Float> expandingProgress) {
         LocalPlayer player = Minecraft.getInstance().player;
 
         if (player == null || slot == null)
             return;
 
-        // Use the menu owned by the screen. CreativeModeInventoryScreen has its own
-        // ItemPickerMenu; player.containerMenu points at a different menu there.
-        ItemStack carried = screen.getMenu().getCarried();
+        ItemStack carried = player.containerMenu.getCarried();
         if (!carried.isEmpty() && ItemStack.isSameItemSameComponents(slot.getItem(), carried) && ImmersiveUI.CONFIG.isEnableMatchingItemHovering()) {
             guiGraphics.pose().translate(Mth.sin(Minecraft.getInstance().player.tickCount*0.215f + Objects.hash(slot.x, slot.y))*ImmersiveUI.CONFIG.getMatchingItemHoverAmplitude(), Mth.cos(Minecraft.getInstance().player.tickCount*0.13f + Objects.hash(slot.x, slot.y))*ImmersiveUI.CONFIG.getMatchingItemHoverAmplitude());
         }

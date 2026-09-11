@@ -21,13 +21,13 @@ public class AbstractContainerScreenMixin {
     @Inject(method = "extractSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;item(Lnet/minecraft/world/item/ItemStack;III)V", shift = At.Shift.BEFORE))
     public void renderSize(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
         guiGraphics.pose().pushMatrix();
-        CommonCode.floatingRenderSize((AbstractContainerScreen<?>) (Object) this, guiGraphics, slot, hoveredSlot, ((ExtraScreenData) this).getExpandingProgress());
+        CommonCode.floatingRenderSize(guiGraphics, slot, hoveredSlot, ((ExtraScreenData) this).getExpandingProgress());
     }
 
     @Inject(method = "extractSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;fakeItem(Lnet/minecraft/world/item/ItemStack;III)V", shift = At.Shift.BEFORE))
     public void renderFakeSize(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
         guiGraphics.pose().pushMatrix();
-        CommonCode.floatingRenderSize((AbstractContainerScreen<?>) (Object) this, guiGraphics, slot, hoveredSlot, ((ExtraScreenData) this).getExpandingProgress());
+        CommonCode.floatingRenderSize(guiGraphics, slot, hoveredSlot, ((ExtraScreenData) this).getExpandingProgress());
     }
 
     @Inject(method = "extractSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;itemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", shift = At.Shift.AFTER))
