@@ -32,7 +32,7 @@
 
 构建结果：
 
-`build/libs/ImmersiveUI-FABRIC-0.3.7-beta.1+26.2.jar`
+`build/libs/ImmersiveUI-FABRIC-1.0.0+26.2.jar`
 
 ## English
 
@@ -66,4 +66,4 @@ Java 25 is required:
 
 Output:
 
-`build/libs/ImmersiveUI-FABRIC-0.3.7-beta.1+26.2.jar`
+`build/libs/ImmersiveUI-FABRIC-1.0.0+26.2.jar`

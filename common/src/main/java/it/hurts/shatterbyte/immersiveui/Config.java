@@ -6,74 +6,71 @@ import lombok.Data;
 
 @Data
 public class Config extends ShatterConfig {
-    @Comment("Enables the hotbar selector animation.")
+    @Comment("启用快捷栏选择框动画。")
     private boolean enableHotbarSelectorAnimation = true;
 
-    @Comment("Enables floating item rotation.")
+    @Comment("启用鼠标携带物品的旋转动画。")
     private boolean enableFloatingItemRotation = true;
 
-    @Comment("Enables a subtle shadow below carried items.")
-    private boolean enableCarriedItemShadow = true;
-
-    @Comment("Enables hovering of matching items.")
+    @Comment("启用与鼠标携带物品相同的物品悬浮效果。")
     private boolean enableMatchingItemHovering = true;
 
-    @Comment("Disables vanilla slot highlighting")
+    @Comment("禁用原版槽位高亮。")
     private boolean disableVanillaSlotHighlighting = true;
     
-    @Comment("Enables particles for rare items.")
+    @Comment("启用稀有物品粒子效果。")
     private boolean enableRarityParticles = true;
 
-    @Comment("Affects the speed of the hotbar selector.")
+    @Comment("调整快捷栏选择框动画速度。")
     private double hotbarSelectorSpeed = 3d;
 
-    @Comment("Affects the size of the hovered item.")
+    @Comment("调整悬停物品的放大比例。")
     private float hoveredItemScale = 1.4f;
 
-    @Comment("Affects the size of the floating item.")
+    @Comment("调整鼠标携带物品的显示比例。")
     private float floatingItemScale = 1.4f;
 
-    @Comment("Affects the hover amplitude of items, that match to the item that is carried in the cursor.")
+    @Comment("调整与鼠标携带物品相同的物品的悬浮幅度。")
     private float matchingItemHoverAmplitude = 0.8f;
 
-    @Comment("Affects the easing speed, that is applied to the rotation of the floating item.")
+    @Comment("调整鼠标携带物品旋转的缓动速度。")
     private float floatingItemEasingSpeed = 0.75f;
 
-    @Comment("Affects the rotation amplitude of the floating item.")
+    @Comment("调整鼠标携带物品的旋转幅度。")
     private float floatingItemRotationAmplitude = 1f;
 
-    @Comment("Moves the hotbar selector above the items. You might want to disable this, if you use resource packs that change the default selector texture.")
+    @Comment("将快捷栏选择框绘制在物品上方。若资源包修改了原版选择框纹理，可关闭此项。")
     private boolean renderHotbarSelectorAboveItems = false;
 
 //  ------------- Screen Shake -------------
-    @Comment("Enables screen shake.")
+    @Comment("启用界面震动。")
     private boolean enableScreenShake = true;
 
-    @Comment("Screen shake timer in ticks.")
+    @Comment("界面震动持续时间，单位为 tick。")
     private int shakeTimer = 8;
 
-    @Comment("Screen shake amplitude.")
+    @Comment("界面震动幅度。")
     private float shakeAmplitude = 1.25f;
 
 //  ------------- Enchant Options -------------
-    @Comment("Enables particles in the enchant(ing/ment) table.")
+    @Comment("启用附魔台粒子效果。")
     private boolean enableEnchantParticles = true;
 
-    @Comment("Enables special formatting for items with cursed enchantments.")
+    @Comment("启用诅咒附魔的特殊文字效果。")
     private boolean enableCurseFormatting = true;
 
 //  ------------- Advancement Toasts -------------
-    @Comment("Enables wobbly items in advancement toasts.")
+    @Comment("启用进度提示中的物品摇摆动画。")
     private boolean enableAdvancementToastItems = true;
 
 //  ------------- Item Transfer Options -------------
-    @Comment("Enables the animation when picking an item up from a slot.")
+    @Comment("启用从槽位拿起物品的动画。")
     private boolean enableItemPickupAnimation = true;
 
-    @Comment("Enables the animation when returning an item to a slot.")
+    @Comment("启用将物品放回槽位的动画。")
     private boolean enableItemReturnAnimation = true;
 
-    @Comment("Duration of item pickup and return animations in milliseconds.")
+    @Comment("拿起和放回动画的持续时间，单位为毫秒。")
     private int itemTransferAnimationDuration = 140;
 
     @Override

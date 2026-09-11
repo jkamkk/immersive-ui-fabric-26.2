@@ -17,8 +17,7 @@
     "InGameHudMixin",
     "ItemStackMixin",
     "ScreenMixin",
-    "SmithingMenuMixin",
-    "SpriteContentsAccessor"
+    "SmithingMenuMixin"
   ],
   "mixins": [
   ],
