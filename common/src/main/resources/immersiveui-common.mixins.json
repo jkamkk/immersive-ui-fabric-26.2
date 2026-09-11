@@ -18,7 +18,7 @@
     "ItemStackMixin",
     "ScreenMixin",
     "SmithingMenuMixin",
-    "FieldWidgetLocalizationMixin"
+    "FieldInfoLocalizationMixin"
   ],
   "mixins": [
   ],
