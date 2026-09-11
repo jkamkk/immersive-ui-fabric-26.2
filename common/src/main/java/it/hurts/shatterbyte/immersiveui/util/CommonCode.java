@@ -133,13 +133,13 @@ public class CommonCode {
         float y = Mth.lerp(eased, animation.startY, animation.endY);
 
         guiGraphics.pose().pushMatrix();
-        guiGraphics.pose().translate(x - slot.x, y - slot.y);
+        guiGraphics.pose().translate(x + 8, y + 8);
         if (slot.isFake()) {
-            guiGraphics.fakeItem(animation.stack, slot.x, slot.y);
+            guiGraphics.fakeItem(animation.stack, -8, -8);
         } else {
-            guiGraphics.item(animation.stack, slot.x, slot.y);
+            guiGraphics.item(animation.stack, -8, -8);
         }
-        guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, slot.x, slot.y);
+        guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, -8, -8);
         guiGraphics.pose().popMatrix();
         return true;
     }
@@ -155,9 +155,9 @@ public class CommonCode {
         float y = Mth.lerp(eased, animation.startY, animation.endY);
 
         guiGraphics.pose().pushMatrix();
-        guiGraphics.pose().translate(x, y);
-        guiGraphics.item(animation.stack, 0, 0);
-        guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, 0, 0);
+        guiGraphics.pose().translate(x + 8, y + 8);
+        guiGraphics.item(animation.stack, -8, -8);
+        guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, -8, -8);
         guiGraphics.pose().popMatrix();
         return true;
     }
