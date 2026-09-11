@@ -158,10 +158,20 @@ public class CommonCode {
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(x + 8, y + 8);
         guiGraphics.pose().scale(scale, scale);
+        renderCarriedItemShadow(guiGraphics);
         guiGraphics.item(animation.stack, -8, -8);
         guiGraphics.itemDecorations(Minecraft.getInstance().font, animation.stack, -8, -8);
         guiGraphics.pose().popMatrix();
         return true;
+    }
+
+    private static void renderCarriedItemShadow(GuiGraphicsExtractor guiGraphics) {
+        if (!ImmersiveUI.CONFIG.isEnableCarriedItemShadow()) {
+            return;
+        }
+
+        guiGraphics.fill(-7, 8, 7, 9, 0x26000000);
+        guiGraphics.fill(-5, 9, 5, 10, 0x18000000);
     }
 
     public static void gooeyRenderCode(float partialTick) {
@@ -227,6 +237,7 @@ public class CommonCode {
         Matrix3x2f matrix = new Matrix3x2f(guiGraphics.pose());
         guiGraphics.pose().scale(scale, scale);
         if (ImmersiveUI.CONFIG.isEnableFloatingItemRotation()) guiGraphics.pose().rotate(Mth.abs(renderInfo.currentAngle) > 0.01f ? renderInfo.currentAngle : 0f);
+        renderCarriedItemShadow(guiGraphics);
         guiGraphics.item(itemStack, -8, -8);
 
         if (ImmersiveUI.CONFIG.isEnableRarityParticles()) {

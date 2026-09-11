@@ -12,6 +12,9 @@ public class Config extends ShatterConfig {
     @Comment("Enables floating item rotation.")
     private boolean enableFloatingItemRotation = true;
 
+    @Comment("Enables a subtle shadow below carried items.")
+    private boolean enableCarriedItemShadow = true;
+
     @Comment("Enables hovering of matching items.")
     private boolean enableMatchingItemHovering = true;
 
