@@ -71,7 +71,10 @@ public class CommonCode {
                     && !current.isEmpty()
                     && ItemStack.isSameItemSameComponents(current, previousCarried)
                     && (previous.isEmpty() || !ItemStack.isSameItemSameComponents(previous, current))) {
-                returnAnimations.put(slot, new ReturnAnimation(current.copy(), mouseX - 8, mouseY - 8, slot.x, slot.y));
+                AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) screen;
+                float startX = mouseX - accessor.getLeftPos() - 8;
+                float startY = mouseY - accessor.getTopPos() - 8;
+                returnAnimations.put(slot, new ReturnAnimation(current.copy(), startX, startY, slot.x, slot.y));
             }
 
             if (current.isEmpty()) {
