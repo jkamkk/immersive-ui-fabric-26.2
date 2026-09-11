@@ -183,6 +183,12 @@ public class CommonCode {
         Identifier texture = getShadowTexture(stack);
         if (texture != null) {
             guiGraphics.blit(texture, -16, 4, 32, 16, 0f, 0f, 1f, 1f);
+        } else {
+            // Some animated/custom item models do not expose a readable particle image.
+            // Keep the shadow visible with the same soft fallback used by the renderer.
+            guiGraphics.fillGradient(-6, 7, 6, 9, 0x00000000, 0x2A000000);
+            guiGraphics.fillGradient(-10, 9, 10, 11, 0x2A000000, 0x14000000);
+            guiGraphics.fillGradient(-8, 11, 8, 13, 0x14000000, 0x00000000);
         }
     }
 
@@ -198,12 +204,12 @@ public class CommonCode {
         Material.Baked material = state.pickParticleMaterial(RandomSource.create(key));
         if (material == null || material.sprite() == null) return null;
 
-        TextureAtlas atlas = (TextureAtlas) minecraft.getTextureManager().getTexture(TextureAtlas.LOCATION_ITEMS);
         TextureAtlasSprite sprite = material.sprite();
         NativeImage source = ((SpriteContentsAccessor) (Object) sprite.contents()).immersiveui$getOriginalImage();
         if (source == null) return null;
 
         NativeImage shadow = new NativeImage(32, 16, true);
+        int maxAlpha = 0;
         for (int y = 0; y < 16; y++) {
             for (int x = 0; x < 32; x++) {
                 float sx = (x - 8.0f) * source.getWidth() / 16.0f;
@@ -213,12 +219,19 @@ public class CommonCode {
                     for (int ox = -1; ox <= 1; ox++) {
                         int px = Mth.clamp((int) sx + ox, 0, source.getWidth() - 1);
                         int py = Mth.clamp((int) sy + oy, 0, source.getHeight() - 1);
-                        alpha = Math.max(alpha, (source.getPixel(px, py) >>> 24) * (3 - Math.abs(ox) - Math.abs(oy)) / 3);
+                        int sourceAlpha = source.getPixel(px, py) >>> 24;
+                        maxAlpha = Math.max(maxAlpha, sourceAlpha);
+                        alpha = Math.max(alpha, sourceAlpha * (3 - Math.abs(ox) - Math.abs(oy)) / 3);
                     }
                 }
                 int fade = Mth.clamp(16 - y, 0, 16);
                 shadow.setPixel(x, y, (alpha * fade / 16 / 3) << 24);
             }
+        }
+
+        if (maxAlpha == 0) {
+            shadow.close();
+            return null;
         }
 
         Identifier id = Identifier.fromNamespaceAndPath("immersiveui", "generated_shadow/" + Integer.toUnsignedString(key));
