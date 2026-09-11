@@ -63,6 +63,16 @@ public class Config extends ShatterConfig {
     @Comment("Enables wobbly items in advancement toasts.")
     private boolean enableAdvancementToastItems = true;
 
+//  ------------- Item Transfer Options -------------
+    @Comment("Enables the animation when picking an item up from a slot.")
+    private boolean enableItemPickupAnimation = true;
+
+    @Comment("Enables the animation when returning an item to a slot.")
+    private boolean enableItemReturnAnimation = true;
+
+    @Comment("Duration of item pickup and return animations in milliseconds.")
+    private int itemTransferAnimationDuration = 140;
+
     @Override
     public String getName() {
         return "immersiveui";

@@ -35,8 +35,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static it.hurts.shatterbyte.immersiveui.client.VariableStorage.*;
 
 public class CommonCode {
-    private static final long RETURN_ANIMATION_DURATION_NS = 140_000_000L;
-
     public static final class ReturnAnimation {
         private final ItemStack stack;
         private final float startX;
@@ -55,7 +53,8 @@ public class CommonCode {
         }
 
         private float progress() {
-            return Mth.clamp((float) (System.nanoTime() - startTime) / RETURN_ANIMATION_DURATION_NS, 0f, 1f);
+            long durationNs = Math.max(1, ImmersiveUI.CONFIG.getItemTransferAnimationDuration()) * 1_000_000L;
+            return Mth.clamp((float) (System.nanoTime() - startTime) / durationNs, 0f, 1f);
         }
     }
 
@@ -67,7 +66,8 @@ public class CommonCode {
             ItemStack current = slot.getItem();
             ItemStack previous = previousSlotItems.getOrDefault(slot, ItemStack.EMPTY);
 
-            if (!previousCarried.isEmpty()
+            if (ImmersiveUI.CONFIG.isEnableItemReturnAnimation()
+                    && !previousCarried.isEmpty()
                     && !current.isEmpty()
                     && ItemStack.isSameItemSameComponents(current, previousCarried)
                     && (previous.isEmpty() || !ItemStack.isSameItemSameComponents(previous, current))) {
@@ -90,7 +90,8 @@ public class CommonCode {
     public static ReturnAnimation createPickupAnimation(AbstractContainerScreen<?> screen, int mouseX, int mouseY,
                                                         Map<Slot, ItemStack> previousSlotItems, ItemStack previousCarried) {
         ItemStack currentCarried = screen.getMenu().getCarried();
-        if (!previousCarried.isEmpty() || currentCarried.isEmpty()) {
+        if (!ImmersiveUI.CONFIG.isEnableItemPickupAnimation()
+                || !previousCarried.isEmpty() || currentCarried.isEmpty()) {
             return null;
         }
 
