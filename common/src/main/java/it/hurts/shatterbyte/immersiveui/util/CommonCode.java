@@ -61,12 +61,20 @@ public class CommonCode {
     public static ItemStack updateReturnAnimations(AbstractContainerScreen<?> screen, int mouseX, int mouseY,
                                                     Map<Slot, ItemStack> previousSlotItems,
                                                     Map<Slot, ReturnAnimation> returnAnimations,
-                                                    ItemStack previousCarried) {
+                                                    ItemStack previousCarried,
+                                                    boolean quickCrafting) {
+        if (quickCrafting) {
+            // During left/right-button drag placement, slots are filled while the
+            // cursor still carries the source stack. Those are placements, not returns.
+            returnAnimations.clear();
+        }
+
         for (Slot slot : screen.getMenu().slots) {
             ItemStack current = slot.getItem();
             ItemStack previous = previousSlotItems.getOrDefault(slot, ItemStack.EMPTY);
 
-            if (ImmersiveUI.CONFIG.isEnableItemReturnAnimation()
+            if (!quickCrafting
+                    && ImmersiveUI.CONFIG.isEnableItemReturnAnimation()
                     && !previousCarried.isEmpty()
                     && !current.isEmpty()
                     && ItemStack.isSameItemSameComponents(current, previousCarried)

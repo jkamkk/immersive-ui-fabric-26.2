@@ -40,6 +40,9 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
     @Nullable
     protected Slot hoveredSlot;
 
+    @Shadow
+    protected boolean isQuickCrafting;
+
     @Unique
     private MouseInfo mouseInfo = new MouseInfo();
     @Unique
@@ -105,7 +108,7 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         if (pickupAnimation == null) {
             pickupAnimation = CommonCode.createPickupAnimation(screen, mouseX, mouseY, previousSlotItems, previousCarried);
         }
-        previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried);
+        previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried, isQuickCrafting);
 
         if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
             return;
