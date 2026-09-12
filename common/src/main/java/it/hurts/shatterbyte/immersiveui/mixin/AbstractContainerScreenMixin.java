@@ -6,6 +6,7 @@ import it.hurts.shatterbyte.immersiveui.client.RenderInfo;
 import it.hurts.shatterbyte.immersiveui.compat.ExtraScreenData;
 import it.hurts.shatterbyte.immersiveui.util.CommonCode;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
@@ -17,6 +18,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,6 +38,8 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
     @Unique
     boolean wasQuickCrafting;
     @Unique
+    boolean suppressReturnAnimations;
+    @Unique
     CommonCode.ReturnAnimation pickupAnimation;
 
     @Shadow
@@ -44,9 +48,6 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
 
     @Shadow
     protected boolean isQuickCrafting;
-
-    @Shadow
-    protected Set<Slot> quickCraftSlots;
 
     @Unique
     private MouseInfo mouseInfo = new MouseInfo();
@@ -113,15 +114,23 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         if (pickupAnimation == null) {
             pickupAnimation = CommonCode.createPickupAnimation(screen, mouseX, mouseY, previousSlotItems, previousCarried);
         }
-        boolean quickCraftingFrame = isQuickCrafting || wasQuickCrafting || !quickCraftSlots.isEmpty();
+        boolean quickCraftingFrame = isQuickCrafting || wasQuickCrafting || suppressReturnAnimations;
         previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried, quickCraftingFrame);
-        wasQuickCrafting = isQuickCrafting || !quickCraftSlots.isEmpty();
+        wasQuickCrafting = isQuickCrafting;
+        suppressReturnAnimations = false;
 
         if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
             return;
         }
 
         CommonCode.shakeScreen(guiGraphics, (Screen) (Object) this, timerCommon, 1f);
+    }
+
+    @Inject(method = "mouseReleased", at = @At("HEAD"))
+    private void markQuickCraftRelease(MouseButtonEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (isQuickCrafting) {
+            suppressReturnAnimations = true;
+        }
     }
 
     @Inject(method = "extractCarriedItem", at = @At("HEAD"), cancellable = true)
