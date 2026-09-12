@@ -32,6 +32,10 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
     @Unique
     Map<Slot, CommonCode.ReturnAnimation> returnAnimations = new IdentityHashMap<>();
     @Unique
+    Map<Slot, Float> matchingHoverProgress = new IdentityHashMap<>();
+    @Unique
+    Map<Slot, ItemStack> matchingHoverStacks = new IdentityHashMap<>();
+    @Unique
     Map<Slot, ItemStack> previousSlotItems = new IdentityHashMap<>();
     @Unique
     ItemStack previousCarried = ItemStack.EMPTY;
@@ -101,6 +105,18 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         }
 
         return returnAnimations;
+    }
+
+    @Override
+    public Map<Slot, Float> getMatchingHoverProgress() {
+        if (matchingHoverProgress == null) matchingHoverProgress = new IdentityHashMap<>();
+        return matchingHoverProgress;
+    }
+
+    @Override
+    public Map<Slot, ItemStack> getMatchingHoverStacks() {
+        if (matchingHoverStacks == null) matchingHoverStacks = new IdentityHashMap<>();
+        return matchingHoverStacks;
     }
 
     @Inject(method = "extractContents", at = @At("HEAD"))

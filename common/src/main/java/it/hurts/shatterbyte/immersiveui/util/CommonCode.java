@@ -297,15 +297,27 @@ public class CommonCode {
         }
     }
 
-    public static void floatingRenderSize(GuiGraphicsExtractor guiGraphics, Slot slot, Slot hoveredSlot, Map<Slot, Float> expandingProgress) {
+    public static void floatingRenderSize(GuiGraphicsExtractor guiGraphics, Slot slot, Slot hoveredSlot, Map<Slot, Float> expandingProgress, Map<Slot, Float> matchingHoverProgress, Map<Slot, ItemStack> matchingHoverStacks) {
         LocalPlayer player = Minecraft.getInstance().player;
 
         if (player == null || slot == null)
             return;
 
         ItemStack carried = player.containerMenu.getCarried();
-        if (!carried.isEmpty() && ItemStack.isSameItemSameComponents(slot.getItem(), carried) && ImmersiveUI.CONFIG.isEnableMatchingItemHovering()) {
-            guiGraphics.pose().translate(Mth.sin(Minecraft.getInstance().player.tickCount*0.215f + Objects.hash(slot.x, slot.y))*ImmersiveUI.CONFIG.getMatchingItemHoverAmplitude(), Mth.cos(Minecraft.getInstance().player.tickCount*0.13f + Objects.hash(slot.x, slot.y))*ImmersiveUI.CONFIG.getMatchingItemHoverAmplitude());
+        boolean matching = ImmersiveUI.CONFIG.isEnableMatchingItemHovering()
+                && !carried.isEmpty()
+                && ItemStack.isSameItemSameComponents(slot.getItem(), carried);
+        if (matching) matchingHoverStacks.put(slot, carried.copy());
+        float hover = matchingHoverProgress.getOrDefault(slot, 0f);
+        float hoverDelta = (float) (ShatterLibClient.getDeltaTime() * 8f);
+        hover = Mth.clamp(hover + (matching ? hoverDelta : -hoverDelta), 0f, 1f);
+        if (hover <= 0f) {
+            matchingHoverProgress.remove(slot);
+            matchingHoverStacks.remove(slot);
+        } else {
+            matchingHoverProgress.put(slot, hover);
+            int seed = Objects.hash(slot.x, slot.y);
+            guiGraphics.pose().translate(Mth.sin(Minecraft.getInstance().player.tickCount * 0.215f + seed) * ImmersiveUI.CONFIG.getMatchingItemHoverAmplitude() * hover, Mth.cos(Minecraft.getInstance().player.tickCount * 0.13f + seed) * ImmersiveUI.CONFIG.getMatchingItemHoverAmplitude() * hover);
         }
 
         boolean hovering = hoveredSlot == slot && (carried.isEmpty() || ItemStack.isSameItemSameComponents(slot.getItem(), carried));
