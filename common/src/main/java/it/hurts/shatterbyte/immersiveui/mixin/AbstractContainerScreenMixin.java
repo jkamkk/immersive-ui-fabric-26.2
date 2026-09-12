@@ -36,8 +36,6 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
     @Unique
     ItemStack previousCarried = ItemStack.EMPTY;
     @Unique
-    boolean wasQuickCrafting;
-    @Unique
     boolean suppressReturnAnimations;
     @Unique
     CommonCode.ReturnAnimation pickupAnimation;
@@ -48,6 +46,9 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
 
     @Shadow
     protected boolean isQuickCrafting;
+
+    @Shadow
+    protected Set<Slot> quickCraftSlots;
 
     @Unique
     private MouseInfo mouseInfo = new MouseInfo();
@@ -114,9 +115,8 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         if (pickupAnimation == null) {
             pickupAnimation = CommonCode.createPickupAnimation(screen, mouseX, mouseY, previousSlotItems, previousCarried);
         }
-        boolean quickCraftingFrame = isQuickCrafting || wasQuickCrafting || suppressReturnAnimations;
+        boolean quickCraftingFrame = !quickCraftSlots.isEmpty() || suppressReturnAnimations;
         previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried, quickCraftingFrame);
-        wasQuickCrafting = isQuickCrafting;
         suppressReturnAnimations = false;
 
         if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
@@ -128,7 +128,7 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
 
     @Inject(method = "mouseReleased", at = @At("HEAD"))
     private void markQuickCraftRelease(MouseButtonEvent event, CallbackInfoReturnable<Boolean> cir) {
-        if (isQuickCrafting) {
+        if (isQuickCrafting && !quickCraftSlots.isEmpty()) {
             suppressReturnAnimations = true;
         }
     }
