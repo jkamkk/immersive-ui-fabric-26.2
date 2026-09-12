@@ -34,6 +34,8 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
     @Unique
     ItemStack previousCarried = ItemStack.EMPTY;
     @Unique
+    boolean wasQuickCrafting;
+    @Unique
     CommonCode.ReturnAnimation pickupAnimation;
 
     @Shadow
@@ -42,6 +44,9 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
 
     @Shadow
     protected boolean isQuickCrafting;
+
+    @Shadow
+    protected Set<Slot> quickCraftSlots;
 
     @Unique
     private MouseInfo mouseInfo = new MouseInfo();
@@ -108,7 +113,9 @@ public abstract class AbstractContainerScreenMixin implements ExtraScreenData {
         if (pickupAnimation == null) {
             pickupAnimation = CommonCode.createPickupAnimation(screen, mouseX, mouseY, previousSlotItems, previousCarried);
         }
-        previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried, isQuickCrafting);
+        boolean quickCraftingFrame = isQuickCrafting || wasQuickCrafting || !quickCraftSlots.isEmpty();
+        previousCarried = CommonCode.updateReturnAnimations(screen, mouseX, mouseY, previousSlotItems, getReturnAnimations(), previousCarried, quickCraftingFrame);
+        wasQuickCrafting = isQuickCrafting || !quickCraftSlots.isEmpty();
 
         if (ImmersiveUI.SOPHISTICATED_COMPAT.isStorageScreenBase((Screen) (Object) this)) {
             return;
